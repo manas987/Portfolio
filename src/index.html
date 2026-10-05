@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manas Kushwaha — Backend & Distributed Systems</title>
+    <meta
+      name="description"
+      content="Backend and distributed systems engineer. Matching engines, Kafka event flow, offline AI pipelines."
+    />
+    <meta name="theme-color" content="#0a0a09" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230a0a09'/%3E%3Cg fill='%23b8d22a'%3E%3Crect x='1' y='6' width='2' height='7' rx='.7'/%3E%3Crect x='5' y='2.5' width='2' height='10.5' rx='.7'/%3E%3Crect x='9' y='8' width='2' height='5' rx='.7'/%3E%3Crect x='13' y='4.5' width='2' height='8.5' rx='.7'/%3E%3C/g%3E%3C/svg%3E" />
+    <meta property="og:title" content="Manas Kushwaha" />
+    <meta
+      property="og:description"
+      content="Backend and distributed systems. Matching engines, Kafka event flow, offline AI pipelines."
+    />
+    <meta property="og:image" content="/hero-poster.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <!-- Reveal targets are visible by default and only start hidden once this runs, so if
+         the motion layer fails to initialise the page stays readable instead of blank. -->
+    <script>
+      if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        document.documentElement.classList.add("js-motion");
+      }
+    </script>
+    <div id="root"></div>
+    <script type="module" src="./frontend.tsx"></script>
+  </body>
+</html>
