@@ -22,11 +22,16 @@ export type Project = {
 export const projects: Project[] = [
   {
     slug: "centralized-exchange",
+
     title: "Centralized Exchange",
+
     year: "2026",
-    what: "A crypto exchange backend: seven services, a live order book, and an engine that matches buy and sell orders in real time.",
+
+    what: "A centralised exchange built around seven services, a live order book, and a matching engine that has to keep making the right decision as orders arrive. My most robust Backend project",
+
     problem:
-      "Keeping an order book correct while seven services change it at once, and recovering it after a crash.",
+      "The easy part was matching a buy with a sell. The hard part was keeping the whole system correct when seven services were changing the state around it — and rebuilding that state after a crash.",
+
     stack: [
       "TypeScript",
       "Kafka",
@@ -36,12 +41,17 @@ export const projects: Project[] = [
       "WebSockets",
       "Docker",
     ],
+
     repo: "https://github.com/manas987/Centralized-Exchange",
+
     body: [
-      "A trading platform split into seven services that coordinate over Kafka. Orders enter through an API gateway, get validated against wallet balances, and are published as events. The matching service holds the order book in memory and matches bids against asks on FIFO price-time priority — limit and market orders, partial fills, separate books per side.",
-      "The interesting part is not the matching. It is that the book lives in one process's memory while the money lives in Postgres and the ticks live in TimescaleDB, and all three have to agree. The persistence service writes order-book and wallet snapshots so the engine can be rebuilt by replaying events from the last good state. The stream service fans trades out to WebSocket clients through Redis pub/sub, so the thing clients see and the thing the engine believes stay in step.",
-      "Kafka is doing real work here rather than sitting in the dependency list. An HTTP request produces an event tagged with a correlation ID and holds the response open until a consumer emits the matching reply — asynchronous coordination underneath a synchronous-looking API.",
+      "I started with the obvious part: an order book that could match bids and asks in real time. Then the real engineering problem showed up. The order book lived in memory inside the matching service, wallets lived in Postgres, market data lived in TimescaleDB, and seven services had to agree on what had just happened.",
+
+      "That forced the architecture to become a distributed system. Orders enter through an API gateway, get checked against wallet balances, and move through Kafka as events. The matching engine applies FIFO price-time priority to limit and market orders, including partial fills. A persistence service stores snapshots so the engine can recover from a known state and replay events instead of starting from zero.",
+
+      "Then there was the part users actually see. Trades are pushed through Redis pub/sub and out over WebSockets, so the live market on screen follows the same state the engine believes is true. Kafka also became part of the request path: an HTTP request can publish an event with a correlation ID and wait for the matching response from another service. What started as an exchange project turned into a lesson in state, timing, recovery, and keeping different parts of a system in sync.",
     ],
+
     flow: [
       { stage: "API gateway", detail: "HTTP ingress, routing, rate limits" },
       {
@@ -58,22 +68,30 @@ export const projects: Project[] = [
       },
       { stage: "Stream service", detail: "Redis pub/sub → WebSocket clients" },
     ],
+
     facts: [
       { label: "Services", value: "7" },
       { label: "Matching", value: "FIFO price-time priority" },
       { label: "Recovery", value: "Snapshot + event replay" },
       { label: "Time series", value: "TimescaleDB" },
     ],
+
     notShipped:
-      "An engineering build, not a production exchange. No latency benchmarks have been run. Perpetual futures — leverage, liquidation, funding rates — are in progress, not shipped.",
+      "This is an engineering build, not a production exchange. Latency benchmarks have not been run. Perpetual futures — leverage, liquidation, and funding rates — are still in progress.",
   },
+
   {
     slug: "bella",
+
     title: "Bella",
+
     year: "2026",
-    what: "A voice assistant that runs entirely on your own machine — it hears you, understands you and answers, with nothing sent to a server.",
+
+    what: "A voice assistant that runs entirely on your own machine offline: it listens, understands, and speaks without sending the conversation to a server. It uses Wake Word and VAD to offer a seemless voice to voice experience",
+
     problem:
-      "Five processes all wanted the microphone. The fix was deciding which one owns it.",
+      "The first version had five different processes trying to use one microphone. The breakthrough was not a better model. It was deciding who owns the microphone.",
+
     stack: [
       "Python",
       "TypeScript",
@@ -83,12 +101,17 @@ export const projects: Project[] = [
       "Silero VAD",
       "Kokoro",
     ],
+
     repo: "https://github.com/manas987/Local_AI_Assistant",
+
     body: [
-      "A voice assistant that runs entirely on the machine — nothing leaves it. Wake word, voice activity detection, speech to text, a local language model, and speech back out, chained end to end: OpenWakeWord listens, Silero VAD decides when you have stopped talking, Whisper.cpp transcribes, Qwen3 runs under Ollama, Kokoro speaks.",
-      "The first architecture had every stage opening its own audio stream, and they fought over the device. The rewrite gave one Python audio engine sole ownership of the microphone and moved everything else behind a Node orchestration layer that talks to it over events. Recording runs until silence rather than for a fixed window, and temporary audio is deleted once it has been transcribed.",
-      "It runs on a base-model M4 MacBook. Qwen3 4B at 4096 context, quantized, is the configuration that fits.",
+      "The goal was simple: build a voice assistant that stays on the machine. The pipeline became a chain of small systems — OpenWakeWord listens for the wake word, Silero VAD decides when speech has ended, Whisper.cpp turns the audio into text, Qwen3 runs locally through Ollama, and Kokoro turns the answer back into speech.",
+
+      "Then the first architecture broke. Every stage wanted to open its own audio stream, and the processes started fighting over the microphone. Instead of adding another workaround, I changed the ownership model: one Python audio engine owns the microphone, and the rest of the system talks to it through an event-driven Node orchestration layer. Recording now runs until silence, and temporary audio is deleted after transcription.",
+
+      "The result is a working local pipeline on a base-model M4 MacBook, using a quantized Qwen3 4B model with a 4096-token context. The interesting lesson was that the hard part of a local AI system was not just running the model. It was making all the surrounding pieces behave like one reliable machine.",
     ],
+
     flow: [
       { stage: "OpenWakeWord", detail: "Always-on wake word" },
       { stage: "Silero VAD", detail: "Record until silence" },
@@ -96,115 +119,162 @@ export const projects: Project[] = [
       { stage: "Qwen3 via Ollama", detail: "Local inference, 4096 context" },
       { stage: "Kokoro", detail: "Speech synthesis" },
     ],
+
     facts: [
       { label: "Network calls", value: "0" },
       { label: "Model", value: "Qwen3 4B, quantized" },
       { label: "Mic owner", value: "One Python process" },
     ],
+
     notShipped:
-      "Memory, tool use, multi-step reasoning and desktop control are designed but not built. The pipeline that works today is wake → record → transcribe → infer → speak.",
+      "Memory, tool use, multi-step reasoning, and desktop control are designed but not built. The pipeline that works today is wake → record → transcribe → infer → speak.",
   },
+
   {
     slug: "agent-harness",
+
     title: "AI Agent Harness",
+
     year: "2026",
-    what: "A command-line AI agent that can read and write files, built without an agent framework so every part of the loop is visible.",
+
+    what: "A command-line AI agent harness, built without an agent framework so the entire tool-calling loop stays visible.",
+
     problem:
-      "Writing the tool-calling loop by hand, because using a framework teaches you nothing about it.",
+      "I wanted to understand what an agent framework actually does, so I wrote the loop myself instead of hiding it behind one.",
+
     stack: ["Bun", "TypeScript", "Gemini", "OpenAI", "Anthropic", "xAI"],
+
     repo: "https://github.com/manas987/AI-agent-harness",
+
     body: [
-      "A CLI agent with no agent framework underneath it. The loop — send messages, read the tool calls back, execute them, feed the results in, repeat until the model stops asking — is written out rather than imported. Three tools: read a file, write a file, list a directory.",
-      "It speaks to four providers behind one interface, and keeps conversation history and API keys in a local config file that is gitignored and created on first run. The point was to understand what a framework is doing before depending on one.",
+      "The project started with a question: what is an AI agent when you remove the framework? The answer turned into a small CLI that does the core loop explicitly — send messages, receive tool calls, run the requested tool, send the result back, and keep going until the model stops asking for work.",
+
+      "There are only three tools: read a file, write a file, and list a directory. The simplicity is deliberate. With no framework underneath, every step is visible, which makes it much easier to understand where tool use, context, and control flow actually live.",
+
+      "The same interface can talk to four model providers, while conversation history and API keys stay in a local gitignored config. The project was less about shipping another chatbot and more about removing the abstraction layer long enough to understand what is happening underneath it.",
     ],
+
     facts: [
       { label: "Tools", value: "readFile · writeFile · listFile" },
       { label: "Providers", value: "4" },
       { label: "Agent framework", value: "None" },
     ],
   },
+
+  {
+    slug: "smtp",
+
+    title: "SMTP Engine",
+
+    year: "2026",
+
+    what: "An SMTP engine built from the protocol up — taking an email connection through the actual SMTP conversation instead of hiding it behind a mail library it handels things like DNS, TCP, TLS, DMARC, SPF. DKIM a full fledge email infra",
+
+    problem:
+      "Email looks simple from the outside. The interesting part is everything that has to happen between opening a connection and successfully completing the SMTP protocol.",
+
+    stack: ["TypeScript", "Bun", "Turborepo", "SMTP"],
+
+    repo: "https://github.com/manas987/SMTP",
+
+    body: [
+      "I wanted to understand what actually happens when an email is sent, so instead of reaching for an SMTP library, I started from the protocol itself. The project is about following the conversation from the first connection all the way through the SMTP command sequence and making the server behave correctly at each step.",
+
+      "That meant dealing with the part that most applications normally hide: connections, commands, responses, protocol state, and what the other side expects at every point in the exchange. The goal was not to build another email UI — it was to build the piece underneath it and understand the protocol by making it work.",
+
+      "The result was an SMTP engine that was able to perform the protocol correctly through to completion. The interesting part was that getting the protocol right was only half the experiment: testing an internet-facing mail server also exposed infrastructure constraints that had nothing to do with the implementation itself. The project ended up being as much about understanding the protocol as it was about discovering where software ends and the network around it begins.",
+    ],
+
+    facts: [
+      { label: "Protocol", value: "SMTP" },
+      { label: "Implementation", value: "Built from the protocol layer" },
+      { label: "Runtime", value: "Bun" },
+    ],
+  },
+
   {
     slug: "realtime-chat",
+
     title: "Real-Time Chat",
+
     year: "2025",
-    what: "A full-stack messaging app: accounts, search, chat history, and messages that arrive instantly over a live connection.",
+
+    what: "A full-stack messaging app with accounts, search, chat history, and messages that arrive instantly over a persistent connection.",
+
     problem:
-      "Authenticating a connection that stays open, when the auth system was built for requests that do not.",
+      "JWT authentication works naturally for requests that start and finish. A WebSocket connection does neither — so the real question was how an identity survives on a connection that stays open.",
+
     stack: ["React", "TypeScript", "Express", "ws", "MongoDB", "JWT"],
+
     repo: "https://github.com/manas987/Chat-app",
+
     live: "https://chat-app-coral-six-16.vercel.app",
+
     body: [
-      "Messaging over raw WebSockets rather than a realtime service. REST handles login, history and user search; the socket handles delivery. The server keeps a map from user ID to live connection, writes each message to MongoDB, then pushes it to the recipient if they are connected.",
-      "Most of the work was in the parts that are not the happy path: carrying a JWT identity onto a persistent connection, handling the connection lifecycle, and deciding what happens to a message whose recipient is not currently attached.",
+      "I wanted to understand realtime messaging without hiding it behind a realtime SaaS. REST handles login, history, and user search; raw WebSockets handle the part that actually needs to happen instantly. The server keeps track of which user owns which live connection, writes messages to MongoDB, and pushes them to the recipient when they are online.",
+
+      "The interesting problems appeared outside the happy path. A JWT gives you an identity at the start of an HTTP request, but a socket can stay open for much longer. That meant working out how authentication crosses that boundary, how connections are created and destroyed, and what the system does when the person receiving a message is simply not connected.",
+
+      "It is a smaller project than the exchange, but it taught the same underlying lesson: realtime software is mostly about managing state over time. Once a connection stays open, the system has to care about who is connected, what they were doing, and what happens when they disappear.",
     ],
+
     facts: [
       { label: "Transport", value: "ws, no realtime SaaS" },
       { label: "Auth", value: "JWT + bcrypt" },
-    ],
-  },
-  {
-    slug: "life-os",
-    title: "LifeOS",
-    year: "2025",
-    what: "A personal dashboard that tracks money, tasks and habits in one place, with charts and automatic alerts.",
-    problem:
-      "The one project with a real interface: a personal dashboard sustained across 59 commits.",
-    stack: [
-      "React 19",
-      "Vite 7",
-      "Tailwind",
-      "shadcn/ui",
-      "Recharts",
-      "dnd-kit",
-    ],
-    repo: "https://github.com/manas987/Life-OS",
-    live: "https://life-os-one-tawny.vercel.app",
-    body: [
-      "A personal dashboard that tracks tasks, money and habits in one place — income against expenses, category breakdowns, drag-and-drop task lists, streaks, subscriptions, multi-account balances, and alerts for the things that quietly go wrong (an overdue task, a broken streak, a subscription about to renew).",
-      "It is the most actively developed repository of the set, and the one that carries frontend range rather than systems depth.",
-    ],
-    facts: [
-      { label: "Commits", value: "59" },
-      { label: "Deployed", value: "Vercel" },
     ],
   },
 ];
 
 export const experience = {
   company: "Ascendlink Technologies",
+
   role: "Software Engineer Intern",
+
   period: "Jun — Jul 2026",
+
   mode: "Remote",
+
   intro:
-    "Backend work on an analytics product, mostly spent making slow things fast and collapsing three ad platforms into one interface.",
+    "Worked on the backend of an analytics product where the job was often less about adding features and more about making existing systems stop getting in the way.",
+
   // The two ClickHouse figures are separate queries, but nothing on record says which —
   // so they share one labelled column rather than two columns with the same name.
   wins: [
     {
       label: "Dashboard analytical queries",
+
       deltas: [{ from: "5.6s", to: "200ms" }],
     },
+
     {
       label: "ClickHouse response times",
+
       deltas: [
         { from: "2s", to: "780ms" },
+
         { from: "550ms", to: "400ms" },
       ],
     },
   ],
+
   notes: [
-    "Built proxy-based Google Ads and Meta Ads integrations that expose one unified backend interface, so the frontend stops caring which platform a number came from.",
-    "Developed Backend-for-Frontend services to centralise business logic out of the client.",
+    "Built proxy-based Google Ads and Meta Ads integrations that exposed both platforms through one backend interface, so the frontend did not need to care where a number came from.",
+
+    "Developed Backend-for-Frontend services that moved business logic out of the client and into a central backend layer.",
   ],
 };
 
 export const about = {
   lead: ["A practice built on", "reading the machine."],
+
   leadEmphasis: "reading",
+
   body: [
-    "I learn infrastructure by building the thing itself. Every project here started as a question I could not answer by reading — how does a matching engine stay correct, how does Kafka coordinate a request that has to wait, what actually happens between a microphone and a model — and turned into a system I had to debug.",
-    "The pattern repeats: pick something harder than I can currently build, get a simplified version working, hit the real problem, go read the mechanism, refactor, add the next layer. The interesting work is always in the second half.",
-    "That has pulled me toward distributed backends, real-time systems, matching engines, local AI pipelines and query performance — the places where correctness depends on timing and nothing is true for very long.",
+    "I learn infrastructure by building the thing itself. I start with a question I cannot answer from a tutorial — how does a matching engine stay correct, how does Kafka coordinate a request that has to wait, what actually happens between a microphone and a model — and then build enough of the system to run into the problem for real.",
+
+    "That is usually where the interesting part begins. The first version breaks. I trace why. I read the mechanism underneath it, change the architecture, and try again. The pattern is simple: build something slightly beyond what I know, hit the part that is genuinely difficult, understand it, then build the next layer.",
+
+    "That process has pulled me toward distributed backends, real-time systems, matching engines, local AI pipelines, and query performance — places where timing matters, state changes constantly, and a system that looks correct on paper still has to survive the real world.",
   ],
 };
 

@@ -16,8 +16,8 @@ export function Hero() {
         <div className="hero-bottom">
           <p className="body-copy">
             Backend and distributed systems — matching engines, Kafka event
-            flow, offline AI pipelines. Mostly the part after it compiles,
-            where the state stops agreeing with itself.
+            flow, offline AI pipelines. Mostly the part after it compiles, where
+            the state stops agreeing with itself.
           </p>
           <a className="circle-link" href="#work" aria-label="See the work">
             <ArrowDownRight size={22} />
@@ -34,8 +34,7 @@ export function Hero() {
           muted
           loop
           playsInline
-          preload="metadata"
-        >
+          preload="metadata">
           <source src="/hero.webm" type="video/webm" />
           <source src="/hero.mp4" type="video/mp4" />
         </video>
@@ -48,7 +47,9 @@ export function Work() {
   return (
     <section className="section" id="work" data-reveal-group>
       <div className="section-head reveal">
-        <h2 className="display" style={{ fontSize: "clamp(1.75rem,3.2vw,2.5rem)" }}>
+        <h2
+          className="display"
+          style={{ fontSize: "clamp(1.75rem,3.2vw,2.5rem)" }}>
           Selected work
         </h2>
         <p className="mono">{projects.length} projects · 2025—2026</p>
@@ -60,8 +61,7 @@ export function Work() {
             key={project.slug}
             className="work-row reveal"
             href={`/work/${project.slug}`}
-            onClick={onLinkClick(`/work/${project.slug}`)}
-          >
+            onClick={onLinkClick(`/work/${project.slug}`)}>
             <div className="work-row-inner">
               {/* No row number: the rail already counts 01–05 for sections, and two
                   counters showing the same range on one page is ambiguous. */}
@@ -110,10 +110,14 @@ export function Skills() {
   return (
     <section className="section" id="skills" data-reveal-group>
       <div className="section-head reveal">
-        <h2 className="display" style={{ fontSize: "clamp(1.75rem,3.2vw,2.5rem)" }}>
+        <h2
+          className="display"
+          style={{ fontSize: "clamp(1.75rem,3.2vw,2.5rem)" }}>
           Skills
         </h2>
-        <p className="mono">{skills.reduce((n, g) => n + g.items.length, 0)} tools</p>
+        <p className="mono">
+          {skills.reduce((n, g) => n + g.items.length, 0)} tools
+        </p>
       </div>
 
       <div className="skills-grid">
@@ -136,7 +140,9 @@ export function Experience() {
   return (
     <section className="section" id="experience" data-reveal-group>
       <div className="section-head reveal">
-        <h2 className="display" style={{ fontSize: "clamp(1.75rem,3.2vw,2.5rem)" }}>
+        <h2
+          className="display"
+          style={{ fontSize: "clamp(1.75rem,3.2vw,2.5rem)" }}>
           Experience
         </h2>
         <p className="mono">{experience.period}</p>
@@ -153,7 +159,9 @@ export function Experience() {
         {experience.intro}
       </p>
 
-      <div className="xp-wins reveal" style={{ marginTop: "clamp(2rem,5vw,3.5rem)" }}>
+      <div
+        className="xp-wins reveal"
+        style={{ marginTop: "clamp(2rem,5vw,3.5rem)" }}>
         {experience.wins.map((win) => (
           <div className="xp-win" key={win.label}>
             <span className="mono xp-win-label">{win.label}</span>
@@ -183,14 +191,17 @@ export function Contact() {
     <section className="section contact" id="contact" data-reveal-group>
       <div className="contact-grid">
         <h2 className="display reveal">
-          Open to the <em>hard</em> parts.
+          Open to the
+          <span className="color-purple"> hard</span> parts.
         </h2>
 
         <div className="reveal">
           {/* Also carried here, not only in the nav, so it survives on mobile where the
               nav collapses — and because this is where the reader decides to act. */}
           {config.availability && (
-            <p className="availability mono" style={{ marginBottom: "1.25rem" }}>
+            <p
+              className="availability mono"
+              style={{ marginBottom: "1.25rem" }}>
               <span className="availability-dot" />
               {config.availability}
             </p>
@@ -205,8 +216,7 @@ export function Contact() {
             <a
               className="contact-email"
               href={`mailto:${config.email}`}
-              style={{ marginTop: "1.75rem" }}
-            >
+              style={{ marginTop: "1.75rem" }}>
               {config.email}
               <ArrowUpRight size={16} />
             </a>
@@ -219,8 +229,7 @@ export function Contact() {
                   key={link.label}
                   href={link.href}
                   target="_blank"
-                  rel="noreferrer"
-                >
+                  rel="noreferrer">
                   {link.label}
                 </a>
               ))}
