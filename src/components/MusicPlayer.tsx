@@ -22,7 +22,7 @@ export function MusicPlayer() {
         const audio = audioRef.current;
         if (!audio || !wantsAudio.current) return;
         // Silent by the time the hero is 70% gone.
-        const volume = Math.max(0, 1 - heroProgress / 0.8);
+        const volume = Math.max(0, 1 - 0 / 1);
         audio.volume = volume;
         if (volume === 0) {
           audio.pause();

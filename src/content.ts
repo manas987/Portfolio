@@ -24,8 +24,7 @@ export const projects: Project[] = [
     slug: "centralized-exchange",
     title: "Centralized Exchange",
     year: "2026",
-    what:
-      "A crypto exchange backend: seven services, a live order book, and an engine that matches buy and sell orders in real time.",
+    what: "A crypto exchange backend: seven services, a live order book, and an engine that matches buy and sell orders in real time.",
     problem:
       "Keeping an order book correct while seven services change it at once, and recovering it after a crash.",
     stack: [
@@ -45,9 +44,18 @@ export const projects: Project[] = [
     ],
     flow: [
       { stage: "API gateway", detail: "HTTP ingress, routing, rate limits" },
-      { stage: "Trading service", detail: "Order placement, publishes to Kafka" },
-      { stage: "Matching service", detail: "In-memory book, FIFO price-time priority" },
-      { stage: "Persistence service", detail: "Snapshots and trades → Postgres + TimescaleDB" },
+      {
+        stage: "Trading service",
+        detail: "Order placement, publishes to Kafka",
+      },
+      {
+        stage: "Matching service",
+        detail: "In-memory book, FIFO price-time priority",
+      },
+      {
+        stage: "Persistence service",
+        detail: "Snapshots and trades → Postgres + TimescaleDB",
+      },
       { stage: "Stream service", detail: "Redis pub/sub → WebSocket clients" },
     ],
     facts: [
@@ -63,8 +71,7 @@ export const projects: Project[] = [
     slug: "bella",
     title: "Bella",
     year: "2026",
-    what:
-      "A voice assistant that runs entirely on your own machine — it hears you, understands you and answers, with nothing sent to a server.",
+    what: "A voice assistant that runs entirely on your own machine — it hears you, understands you and answers, with nothing sent to a server.",
     problem:
       "Five processes all wanted the microphone. The fix was deciding which one owns it.",
     stack: [
@@ -101,8 +108,7 @@ export const projects: Project[] = [
     slug: "agent-harness",
     title: "AI Agent Harness",
     year: "2026",
-    what:
-      "A command-line AI agent that can read and write files, built without an agent framework so every part of the loop is visible.",
+    what: "A command-line AI agent that can read and write files, built without an agent framework so every part of the loop is visible.",
     problem:
       "Writing the tool-calling loop by hand, because using a framework teaches you nothing about it.",
     stack: ["Bun", "TypeScript", "Gemini", "OpenAI", "Anthropic", "xAI"],
@@ -121,8 +127,7 @@ export const projects: Project[] = [
     slug: "realtime-chat",
     title: "Real-Time Chat",
     year: "2025",
-    what:
-      "A full-stack messaging app: accounts, search, chat history, and messages that arrive instantly over a live connection.",
+    what: "A full-stack messaging app: accounts, search, chat history, and messages that arrive instantly over a live connection.",
     problem:
       "Authenticating a connection that stays open, when the auth system was built for requests that do not.",
     stack: ["React", "TypeScript", "Express", "ws", "MongoDB", "JWT"],
@@ -141,11 +146,17 @@ export const projects: Project[] = [
     slug: "life-os",
     title: "LifeOS",
     year: "2025",
-    what:
-      "A personal dashboard that tracks money, tasks and habits in one place, with charts and automatic alerts.",
+    what: "A personal dashboard that tracks money, tasks and habits in one place, with charts and automatic alerts.",
     problem:
       "The one project with a real interface: a personal dashboard sustained across 59 commits.",
-    stack: ["React 19", "Vite 7", "Tailwind", "shadcn/ui", "Recharts", "dnd-kit"],
+    stack: [
+      "React 19",
+      "Vite 7",
+      "Tailwind",
+      "shadcn/ui",
+      "Recharts",
+      "dnd-kit",
+    ],
     repo: "https://github.com/manas987/Life-OS",
     live: "https://life-os-one-tawny.vercel.app",
     body: [
@@ -200,58 +211,52 @@ export const about = {
 export const skills = [
   {
     group: "Languages",
-    items: ["TypeScript", "JavaScript", "Python", "C++"],
+    items: ["TypeScript", "JavaScript", "Python", "C++", "HTML", "CSS"],
+  },
+  {
+    group: "Frameworks", // Fixed casing
+    items: ["Next.js", "Django", "Express", "Flask", "FastAPI", "Fastify"], // Added Next.js here if you want it listed as a framework
   },
   {
     group: "Backend",
     items: [
-      "Node.js",
-      "Bun",
-      "Fastify",
-      "Express",
       "REST APIs",
       "WebSockets",
-      "JWT auth",
-      "bcrypt",
-      "Zod",
-      "BFF pattern",
-    ],
-  },
-  {
-    group: "Distributed systems",
-    items: [
+      "WebRTC", // Fixed casing
       "Kafka",
       "Redis",
-      "Pub/Sub",
-      "Microservices",
-      "Event-driven architecture",
-      "Rate limiting",
+      "BullMQ",
+      "Celery",
     ],
   },
   {
-    group: "Data",
-    items: ["PostgreSQL", "TimescaleDB", "MongoDB", "ClickHouse", "Query optimization"],
+    group: "Data & Databases",
+    items: [
+      "PostgreSQL",
+      "TimescaleDB",
+      "MongoDB",
+      "ClickHouse",
+      "Raw SQL Queries",
+    ],
   },
   {
-    group: "AI & local inference",
+    group: "AI & Local Inference", // Fixed casing
     items: [
-      "Ollama",
-      "Qwen3",
       "Whisper.cpp",
-      "OpenWakeWord",
       "Silero VAD",
       "Kokoro TTS",
-      "Google GenAI SDK",
-      "LLM tool-calling loops",
+      "RAG",
+      "LangChain",
+      "LangGraph",
     ],
   },
   {
-    group: "Frontend",
-    items: ["React", "Vite", "Tailwind CSS", "shadcn/ui", "Recharts", "Next.js"],
+    group: "Frontend & UI",
+    items: ["React", "Tailwind CSS"],
   },
   {
-    group: "Infra & tooling",
-    items: ["Docker", "Docker Compose", "Git", "Linux", "Vercel", "Turborepo"],
+    group: "Infra & Tooling", // Fixed casing
+    items: ["Docker", "Kubernetes", "Git", "Linux", "Turborepo"],
   },
 ];
 
