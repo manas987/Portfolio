@@ -285,7 +285,15 @@ export const skills = [
   },
   {
     group: "Frameworks", // Fixed casing
-    items: ["Next.js", "Django", "Express", "Flask", "FastAPI", "Fastify"], // Added Next.js here if you want it listed as a framework
+    items: [
+      "React",
+      "Next.js",
+      "Django",
+      "Express",
+      "Flask",
+      "FastAPI",
+      "Fastify",
+    ], // Added Next.js here if you want it listed as a framework
   },
   {
     group: "Backend",
@@ -319,10 +327,6 @@ export const skills = [
       "LangChain",
       "LangGraph",
     ],
-  },
-  {
-    group: "Frontend & UI",
-    items: ["React", "Tailwind CSS"],
   },
   {
     group: "Infra & Tooling", // Fixed casing
