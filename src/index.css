@@ -280,12 +280,15 @@ figure {
 }
 
 .hero-media {
+  --media-w: min(62vw, 1000px);
   position: absolute;
-  top: 50%;
+  /* Centred by arithmetic (half of its 16:9 height), not translate: GSAP animates this
+     element's transform and folds a CSS translate into a fixed pixel value, which goes stale
+     on resize and drops the head down the page. */
+  top: calc(50% - var(--media-w) * 9 / 32);
   /* Room for the right-hand callout labels inside the viewport. */
   right: clamp(1rem, 7vw, 8rem);
-  translate: 0 -50%;
-  width: min(62vw, 1000px);
+  width: var(--media-w);
   aspect-ratio: 16 / 9;
 }
 
@@ -396,7 +399,6 @@ figure {
     position: relative;
     top: auto;
     right: auto;
-    translate: none;
     /* Wide enough that the head (40–83% across the frame) fills the phone, centred. */
     width: 150vw;
     margin-left: -42vw;
