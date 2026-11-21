@@ -26,6 +26,7 @@ uniform vec3 paper;
 uniform vec2 pointer; // canvas pixels, GL orientation (y up)
 uniform float hole;   // radius cleared around the pointer, 0 when away
 uniform float reach;  // radius the displaced dots are squeezed into
+uniform float develop; // 0..1 first-load reveal: each ink dot appears once this passes its seed
 
 float bayer2(vec2 a) {
   a = floor(a);
@@ -33,6 +34,7 @@ float bayer2(vec2 a) {
 }
 float bayer4(vec2 a) { return bayer2(0.5 * a) * 0.25 + bayer2(a); }
 float bayer8(vec2 a) { return bayer4(0.5 * a) * 0.25 + bayer2(a); }
+float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
 
 void main() {
   vec2 cellCoord = floor(gl_FragCoord.xy / cell);
@@ -64,8 +66,15 @@ void main() {
   lum = mix(1.0, lum, edge);
   lum = max(lum, cleared);
   float on = step(bayer8(cellCoord) + 0.0078, lum);
+  // Develop: until its random seed is passed, a dot stays paper, so the head fills in from
+  // scattered dots like a print developing.
+  on = max(on, step(develop, hash(cellCoord)));
   gl_FragColor = vec4(mix(ink, paper, on), 1.0);
 }`;
+
+/* The develop reveal plays once per visit, not every time the index remounts. */
+let developed = false;
+const DEVELOP_MS = 1300;
 
 const hex = (value: string) =>
   [1, 3, 5].map((i) => parseInt(value.slice(i, i + 2), 16) / 255) as [number, number, number];
@@ -125,6 +134,8 @@ export function DitherVideo({ cell = 2 }: { cell?: number }) {
     const pointerU = gl.getUniformLocation(program, "pointer");
     const holeU = gl.getUniformLocation(program, "hole");
     const reachU = gl.getUniformLocation(program, "reach");
+    const developU = gl.getUniformLocation(program, "develop");
+    let developStart = 0;
     let dpr = 1;
 
     const resize = () => {
@@ -176,6 +187,15 @@ export function DitherVideo({ cell = 2 }: { cell?: number }) {
       py += (ty - py) * 0.18;
       holeNow += (holeTarget - holeNow) * 0.12;
       if (video.readyState >= 2) {
+        let develop = 1;
+        if (!developed && !reduced) {
+          const now = performance.now();
+          developStart ||= now; // starts on the first real frame, not on mount
+          const t = Math.min(1, (now - developStart) / DEVELOP_MS);
+          develop = 1 - (1 - t) ** 3;
+          if (t === 1) developed = true;
+        }
+        gl.uniform1f(developU, develop);
         gl.uniform2f(pointerU, px * dpr, canvas.height - py * dpr);
         gl.uniform1f(holeU, holeNow * dpr);
         gl.uniform1f(reachU, REACH * dpr);

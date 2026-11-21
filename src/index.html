@@ -17,7 +17,12 @@
       property="og:description"
       content="Full-stack engineer. Web, mobile and applied AI."
     />
-    <meta property="og:image" content="/hero-poster.jpg" />
+    <meta property="og:image" content="https://manas.bytesac.com/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://manas.bytesac.com/" />
+    <meta name="twitter:image" content="https://manas.bytesac.com/og.png" />
     <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
@@ -26,6 +31,17 @@
     <script>
       if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
         document.documentElement.classList.add("js-motion");
+      }
+    </script>
+    <!-- Vercel Web Analytics (cookieless). Injected at runtime so the bundler leaves the
+         Vercel-served path alone, and skipped locally so dev visits are not counted. -->
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+      if (!/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
+        var va = document.createElement("script");
+        va.defer = true;
+        va.src = "/_vercel/insights/script.js";
+        document.head.appendChild(va);
       }
     </script>
     <div id="root"></div>
