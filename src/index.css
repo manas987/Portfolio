@@ -36,13 +36,11 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
-}
-
-/* No visible page scrollbar (the page still scrolls by wheel, trackpad, keys and touch). */
-html {
+  /* No visible page scrollbar; the page still scrolls by wheel, trackpad, keys and touch. */
   scrollbar-width: none;
 }
 
+body::-webkit-scrollbar,
 html::-webkit-scrollbar {
   display: none;
 }
