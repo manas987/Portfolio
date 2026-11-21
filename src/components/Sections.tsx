@@ -111,7 +111,7 @@ export function ProjectCard({ project }: { project: Project }) {
  * the arrows step it, and a drag never doubles as a click. The vertical wheel is left alone
  * so the page always scrolls past the rail. Touch and trackpads keep native scrolling.
  */
-function useRailControls() {
+export function useRailControls() {
   const railRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -168,7 +168,7 @@ function useRailControls() {
 
   const step = (direction: 1 | -1) => {
     const rail = railRef.current;
-    const card = rail?.querySelector<HTMLElement>(".project-card");
+    const card = rail?.firstElementChild as HTMLElement | null;
     if (!rail || !card) return;
     const gap = parseFloat(getComputedStyle(rail).columnGap) || 0;
     rail.scrollBy({
@@ -235,7 +235,7 @@ const statSpots = [
  * out with hover; with `rest` (fractions of the field) it stays lit and eases back there when
  * the pointer leaves. Moved by transform only, so it never repaints. Off under reduced motion.
  */
-function useLiquidGlow(rest?: [number, number]) {
+export function useLiquidGlow(rest?: [number, number]) {
   const fieldRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLSpanElement>(null);
 

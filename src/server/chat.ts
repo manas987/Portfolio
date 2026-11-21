@@ -19,7 +19,8 @@ function buildSystemPrompt() {
         p.repo ? `Repo: ${p.repo}` : "",
         p.live ? `Live: ${p.live}` : "",
         ...p.body,
-        p.flow ? `Flow: ${p.flow.map((f) => `${f.stage} (${f.detail})`).join(" -> ")}` : "",
+        ...(p.steps ?? []).map((g) => `${g.title}: ${g.items.map((i) => `${i.n}. ${i.text}`).join(" ")}`),
+        ...(p.decisions ?? []).map((d) => `Decision: ${d.title}. ${d.body}`),
         p.facts ? p.facts.map((f) => `${f.label}: ${f.value}`).join("; ") : "",
         p.notShipped ? `NOT SHIPPED: ${p.notShipped}` : "",
       ]
