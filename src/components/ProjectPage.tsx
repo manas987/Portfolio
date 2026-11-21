@@ -37,17 +37,23 @@ export function ProjectPage({ slug }: { slug: string }) {
         <ArrowLeft /> Index
       </a>
 
-      {/* Shares its view-transition-name with the card on the index, so the card floats up
-          and settles into this. */}
+      {/* One card holds the whole overview: name, the hard problem and what was built, the
+          art, and a strip of checkable facts, the status and the stack. It also shares its
+          view-transition-name with the card on the index, so the card settles into it. */}
       <header
         className="card detail-hero"
         style={{ viewTransitionName: `card-${project.slug}` } as CSSProperties}>
         <div className="detail-hero-text">
           <span className="mono card-tag">
-            {project.kind} · {project.year}
+            {project.kind} · {project.year} · {project.tagline}
           </span>
           <h1 className="headline">{project.title}</h1>
-          <p className="detail-tagline">{project.tagline}</p>
+          <p className="detail-problem">{project.problem}</p>
+          {project.body.map((para) => (
+            <p key={para} className="detail-body">
+              {para}
+            </p>
+          ))}
           {project.live && (
             <a className="live-pill glass" href={project.live} target="_blank" rel="noreferrer">
               Open live app <ArrowUpRight size={14} />
@@ -57,57 +63,46 @@ export function ProjectPage({ slug }: { slug: string }) {
         <span className="card-art">
           <CardArt project={project} />
         </span>
-      </header>
 
-      <div className="project-meta">
-        <ul className="stack-list">
-          {project.stack.map((tech) => (
-            <li key={tech} className="mono">
-              {tech}
-            </li>
+        <div className="detail-strip">
+          {project.facts?.map((fact) => (
+            <div className="strip-cell" key={fact.label}>
+              <span className="mono">{fact.label}</span>
+              <span className="strip-value">{fact.value}</span>
+            </div>
           ))}
-        </ul>
-        {project.repo && (
-          <a className="out-link" href={project.repo} target="_blank" rel="noreferrer">
-            Repository <ArrowUpRight size={13} />
-          </a>
-        )}
-        {project.live && (
-          <a className="out-link" href={project.live} target="_blank" rel="noreferrer">
-            Live <ArrowUpRight size={13} />
-          </a>
-        )}
-      </div>
-
-      {/* Overview first: what it is and the hard part on the left, the checkable facts and
-          the honest status on the right, so the essentials land before any detail. */}
-      <section className="overview" aria-label="Overview" data-reveal-group>
-        <div>
-          <p className="headline headline-sm project-problem reveal">{project.problem}</p>
-          {project.body.map((para) => (
-            <p key={para} className="body-copy reveal">
-              {para}
-            </p>
-          ))}
-        </div>
-        <aside className="overview-side reveal">
-          {project.facts && (
-            <div className="facts">
-              {project.facts.map((fact) => (
-                <div className="fact" key={fact.label}>
-                  <span className="mono">{fact.label}</span>
-                  <span className="fact-value">{fact.value}</span>
-                </div>
-              ))}
+          {project.notShipped && (
+            <div className="strip-cell strip-status">
+              <span className="mono">
+                <span className="status-dot" aria-hidden /> Status
+              </span>
+              <span className="strip-note">{project.notShipped}</span>
             </div>
           )}
-          {project.notShipped && (
-            <p className="caveat">
-              <strong>Status.</strong> {project.notShipped}
-            </p>
-          )}
-        </aside>
-      </section>
+        </div>
+
+        <div className="detail-foot">
+          <ul className="stack-list">
+            {project.stack.map((tech) => (
+              <li key={tech} className="mono">
+                {tech}
+              </li>
+            ))}
+          </ul>
+          <div className="detail-links">
+            {project.repo && (
+              <a className="out-link" href={project.repo} target="_blank" rel="noreferrer">
+                Repository <ArrowUpRight size={13} />
+              </a>
+            )}
+            {project.live && (
+              <a className="out-link" href={project.live} target="_blank" rel="noreferrer">
+                Live <ArrowUpRight size={13} />
+              </a>
+            )}
+          </div>
+        </div>
+      </header>
 
       {project.diagram && (
         <section className="project-section" aria-labelledby="arch-title" data-reveal-group>

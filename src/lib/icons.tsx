@@ -69,19 +69,31 @@ export const Message = ({ size = 18, className }: IconProps) => (
   </svg>
 );
 
+/**
+ * The mark: a pixel-font lowercase m built from dither cells that shrink and break apart
+ * toward the bottom, the way the hero's head dissolves. [column, row, size] on a 5-wide grid.
+ * public/favicon.svg is generated from these cells on an ink tile; keep the two in step.
+ */
+export const MARK_CELLS: [number, number, number][] = [
+  [0, 0, 2.2], [1, 0, 2.2], [3, 0, 2.2],
+  [0, 1, 2.2], [2, 1, 2.2], [4, 1, 2.2],
+  [0, 2, 2.2], [2, 2, 2.0], [4, 2, 2.2],
+  [0, 3, 1.9], [2, 3, 1.5], [4, 3, 1.8],
+  [0, 4, 1.3], [4, 4, 1.0],
+  [2, 5, 0.8], [4, 5, 0.55],
+];
+
+export const markRect = ([c, r, s]: [number, number, number]) => ({
+  x: +(2.8 + c * 2.6 - s / 2).toFixed(2),
+  y: +(1.5 + r * 2.6 - s / 2).toFixed(2),
+  width: s,
+  height: s,
+});
+
 export const Mark = ({ size = 16, className }: IconProps) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 16 16"
-    fill="currentColor"
-    aria-hidden
-    focusable="false"
-    className={className}
-  >
-    <rect x="1" y="6" width="2" height="7" rx="0.7" />
-    <rect x="5" y="2.5" width="2" height="10.5" rx="0.7" />
-    <rect x="9" y="8" width="2" height="5" rx="0.7" />
-    <rect x="13" y="4.5" width="2" height="8.5" rx="0.7" />
+  <svg width={size} height={size} viewBox="0 0 16 16" fill="currentColor" aria-hidden focusable="false" className={className}>
+    {MARK_CELLS.map((cell) => (
+      <rect key={`${cell[0]}-${cell[1]}`} {...markRect(cell)} rx="0.3" />
+    ))}
   </svg>
 );

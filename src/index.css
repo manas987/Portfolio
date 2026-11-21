@@ -1037,16 +1037,15 @@ figure {
 
 .detail-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-  align-items: end;
-  gap: 2rem;
-  min-height: clamp(300px, 32vw, 430px);
-  padding: clamp(1.75rem, 4vw, 3rem);
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 1.5rem 2rem;
+  padding: clamp(1.5rem, 3.5vw, 2.75rem);
   overflow: hidden;
 }
 
 .detail-hero .card-art {
   align-self: stretch;
+  min-height: 260px;
 }
 
 .detail-hero .card-blob {
@@ -1054,17 +1053,92 @@ figure {
 }
 
 .detail-hero .card-image {
-  width: min(100%, 480px);
+  width: min(100%, 460px);
 }
 
 .detail-hero .headline {
-  margin-block: 0.75rem 0.6rem;
+  margin-block: 0.6rem 1.1rem;
 }
 
-.detail-tagline {
-  font-size: 1.0625rem;
+.detail-problem {
+  max-width: 32ch;
+  font-size: clamp(1.15rem, 1.6vw, 1.4rem);
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.detail-body {
+  max-width: 58ch;
+  margin-top: 0.8rem;
+  font-size: 0.9375rem;
+  line-height: 1.65;
   color: var(--text-2);
-  max-width: 34ch;
+  text-wrap: pretty;
+}
+
+.detail-hero .live-pill {
+  margin-top: 1.4rem;
+}
+
+/* Facts read across the card as a strip of cells; the status takes the wider last cell. */
+.detail-strip {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--hair);
+}
+.detail-strip:empty {
+  display: none;
+}
+
+.strip-cell {
+  flex: 1 1 130px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1rem 1.25rem 0.25rem 0;
+}
+.strip-cell + .strip-cell {
+  padding-left: 1.25rem;
+  border-left: 1px solid var(--hair);
+}
+.strip-value {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.strip-status {
+  flex: 2.4 1 260px;
+}
+.strip-note {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+.status-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 0.2rem;
+  border-radius: 50%;
+  background: #e0a526;
+  vertical-align: 0.05em;
+}
+
+.detail-foot {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  margin-top: -0.25rem;
+}
+.detail-links {
+  display: flex;
+  gap: 1.25rem;
 }
 
 @media (max-width: 760px) {
@@ -1073,16 +1147,24 @@ figure {
   }
   .detail-hero .card-art {
     order: -1;
-    min-height: 220px;
+    min-height: 200px;
   }
-}
-
-.project-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem 1.5rem;
-  margin-block: 1.5rem 0;
+  .strip-cell {
+    flex-basis: 40%;
+  }
+  .strip-cell + .strip-cell {
+    padding-left: 0;
+    border-left: 0;
+  }
+  .strip-cell:nth-child(even) {
+    padding-left: 1.25rem;
+    border-left: 1px solid var(--hair);
+  }
+  .strip-status {
+    flex-basis: 100%;
+    padding-left: 0 !important;
+    border-left: 0 !important;
+  }
 }
 
 .stack-list {
@@ -1103,10 +1185,6 @@ figure {
   text-decoration: underline;
   text-underline-offset: 4px;
   text-decoration-thickness: 1px;
-}
-
-.project-problem {
-  margin-bottom: 1.5rem;
 }
 
 .caveat {
@@ -1314,26 +1392,6 @@ figure {
 .flow-stage[data-active] .flow-node[data-on] {
   translate: 0 -2px;
   box-shadow: inset 0 0 14px #ffffffd9, 0 0 0 1.5px color-mix(in srgb, var(--k) 55%, #fff), 0 16px 28px -16px #00000033;
-}
-
-/* Overview: the story on the left, the facts and status beside it. */
-.overview {
-  display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-  gap: clamp(2rem, 6vw, 5.5rem);
-  align-items: start;
-  margin-top: clamp(3rem, 7vw, 5rem);
-}
-.overview-side .facts {
-  margin-top: 0;
-}
-.overview-side .caveat {
-  margin-top: 1.25rem;
-}
-@media (max-width: 860px) {
-  .overview {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }
 
 .flow-head {

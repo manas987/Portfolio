@@ -10,7 +10,7 @@ export function Nav({ onHome }: { onHome: boolean }) {
   return (
     <header className="nav">
       <a className="wordmark" href="/" onClick={onLinkClick("/")}>
-        <Mark />
+        <Mark size={20} />
         manas
       </a>
 

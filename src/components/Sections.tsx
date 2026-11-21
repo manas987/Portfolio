@@ -603,7 +603,7 @@ export function Contact() {
               )}
             </div>
 
-            <Mark className="biz-mark" size={18} />
+            <Mark className="biz-mark" size={22} />
             <p className="biz-word">manas</p>
           </div>
 
