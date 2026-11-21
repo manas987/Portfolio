@@ -1,33 +1,49 @@
 import { useEffect, useRef } from "react";
 import "./index.css";
 import { Chat } from "./components/Chat";
-import { Nav, Rail } from "./components/Chrome";
+import { Nav } from "./components/Chrome";
 import { ProjectPage } from "./components/ProjectPage";
 import {
   About,
   Contact,
   Experience,
   Hero,
-  Skills,
   Work,
 } from "./components/Sections";
 import { initPageMotion } from "./lib/motion";
-import { usePath } from "./lib/router";
+import { usePath, whenSettled } from "./lib/router";
 
 export function App() {
   const path = usePath();
   const scopeRef = useRef<HTMLDivElement>(null);
   const projectSlug = path.startsWith("/work/") ? path.slice(6) : null;
 
+  const firstLoad = useRef(true);
+
+  // Set up scroll motion only once a route transition has finished, so it never competes
+  // with the card morph for frames. The hero entrance plays on first load only; coming back
+  // to the index it would flash content the transition already showed.
   useEffect(() => {
-    if (!scopeRef.current) return;
-    return initPageMotion(scopeRef.current);
+    const scope = scopeRef.current;
+    if (!scope) return;
+    let cleanup: (() => void) | undefined;
+    let cancelled = false;
+    void whenSettled().then(() => {
+      if (cancelled) return;
+      // Marked used only once it has actually run: StrictMode's first, cancelled pass in
+      // development must not swallow the entrance.
+      cleanup = initPageMotion(scope, { entrance: firstLoad.current });
+      firstLoad.current = false;
+    });
+    return () => {
+      cancelled = true;
+      cleanup?.();
+    };
   }, [path]);
 
   return (
     <div ref={scopeRef}>
       <Nav onHome={!projectSlug} />
-      {!projectSlug && <Rail />}
 
       {projectSlug ? (
         <ProjectPage slug={projectSlug} />
@@ -36,7 +52,6 @@ export function App() {
           <Hero />
           <Work />
           <About />
-          <Skills />
           <Experience />
           <Contact />
         </main>

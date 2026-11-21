@@ -26,7 +26,7 @@ function setHeroProgress(value: number) {
 /**
  * One orchestration for the whole page. Returns a cleanup that kills every trigger it made.
  */
-export function initPageMotion(scope: HTMLElement) {
+export function initPageMotion(scope: HTMLElement, { entrance = true } = {}) {
   const reduced = prefersReducedMotion();
 
   const ctx = gsap.context(() => {
@@ -46,15 +46,6 @@ export function initPageMotion(scope: HTMLElement) {
       });
     });
 
-    const rail = document.querySelector<HTMLElement>(".rail-fill");
-    if (rail) {
-      gsap.to(rail, {
-        height: "100%",
-        ease: "none",
-        scrollTrigger: { start: 0, end: "max", scrub: 0.35 },
-      });
-    }
-
     const media = scope.querySelector<HTMLElement>(".hero-media");
     const hero = scope.querySelector<HTMLElement>(".hero");
     if (!hero) return;
@@ -71,10 +62,9 @@ export function initPageMotion(scope: HTMLElement) {
         reduced || !media
           ? undefined
           : gsap.to(media, {
-              yPercent: -14,
-              scale: 1.07,
+              yPercent: -10,
+              scale: 1.06,
               opacity: 0,
-              filter: "blur(9px)",
               ease: "power1.in",
             }),
     });
@@ -82,6 +72,7 @@ export function initPageMotion(scope: HTMLElement) {
     // Entrance, not scroll-triggered: the hero is the first thing on screen, so it plays
     // once on mount rather than waiting for an intersection that has already happened.
     const copyItems = gsap.utils.toArray<HTMLElement>(".hero-copy > *", hero);
+    if (!entrance) return;
     if (copyItems.length) {
       gsap.from(copyItems, {
         y: reduced ? 0 : 18,
@@ -99,6 +90,15 @@ export function initPageMotion(scope: HTMLElement) {
         duration: 1.1,
         ease: "power2.out",
       });
+      // The frame around the head draws itself, then the dots and labels land on it.
+      const tl = gsap.timeline({ delay: 0.5 });
+      tl.fromTo(
+        ".callout-line",
+        { strokeDashoffset: 1 },
+        { strokeDashoffset: 0, duration: 1.4, ease: "power2.inOut" },
+      )
+        .from(".callout-dot", { scale: 0, transformOrigin: "center", duration: 0.4, ease: "back.out(2)", stagger: 0.12 }, "-=0.9")
+        .from(".callout", { opacity: 0, duration: 0.5, ease: "power1.out", stagger: 0.12 }, "<0.1");
     }
   }, scope);
 
@@ -106,22 +106,4 @@ export function initPageMotion(scope: HTMLElement) {
     ctx.revert();
     setHeroProgress(0);
   };
-}
-
-/** Which section the reader is in, for the progress rail. */
-export function watchActiveSection(
-  ids: string[],
-  set: (index: number) => void,
-) {
-  const triggers = ids.map((id, index) => {
-    const el = document.getElementById(id);
-    if (!el) return null;
-    return ScrollTrigger.create({
-      trigger: el,
-      start: "top 45%",
-      end: "bottom 45%",
-      onToggle: (self) => self.isActive && set(index),
-    });
-  });
-  return () => triggers.forEach((t) => t?.kill());
 }

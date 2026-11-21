@@ -43,16 +43,17 @@ export const Close = ({ size = 14, className }: IconProps) => (
   </svg>
 );
 
-export const Play = ({ size = 14, className }: IconProps) => (
-  <svg {...base(size)} className={className} fill="currentColor" strokeWidth={0}>
-    <path d="M5 3.4v9.2a.5.5 0 0 0 .76.43l7.2-4.6a.5.5 0 0 0 0-.86l-7.2-4.6A.5.5 0 0 0 5 3.4Z" />
+export const SoundOn = ({ size = 14, className }: IconProps) => (
+  <svg {...base(size)} className={className}>
+    <path d="M2.5 6v4h2.5l3.5 3V3L5 6H2.5Z" />
+    <path d="M11 5.5a3.5 3.5 0 0 1 0 5M12.8 3.8a6 6 0 0 1 0 8.4" />
   </svg>
 );
 
-export const Pause = ({ size = 14, className }: IconProps) => (
-  <svg {...base(size)} className={className} fill="currentColor" strokeWidth={0}>
-    <rect x="4.25" y="3.25" width="2.75" height="9.5" rx="0.6" />
-    <rect x="9" y="3.25" width="2.75" height="9.5" rx="0.6" />
+export const SoundOff = ({ size = 14, className }: IconProps) => (
+  <svg {...base(size)} className={className}>
+    <path d="M2.5 6v4h2.5l3.5 3V3L5 6H2.5Z" />
+    <path d="m11 6 3.5 4M14.5 6 11 10" />
   </svg>
 );
 

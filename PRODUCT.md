@@ -15,8 +15,8 @@ pure static hosting.
 
 ## Users
 
-Primary: engineering recruiters and hiring engineers evaluating Manas Kushwaha for backend,
-distributed-systems and AI-infrastructure internships. They arrive from a LinkedIn or GitHub
+Primary: engineering recruiters and hiring engineers evaluating Manas Kushwaha for full-stack
+roles (web, mobile, applied AI),. They arrive from a LinkedIn or GitHub
 link, usually on desktop, usually skimming, and they are deciding within about thirty seconds
 whether this person builds real systems or assembles tutorials.
 
@@ -49,17 +49,21 @@ phone.
   values are compiled into the client bundle and can never hold a secret.
 - Everything optional is env-driven: contact links, availability line, competitive-programming
   line, chat agent, music player. An unset link variable hides its row.
-- Background music is scoped to the hero only and fades out as the hero leaves. It never
-  autoplays.
+- Background music is on by default (user decision, Nov 2026): it starts on the visitor's first
+  click, tap or key press (browsers block sound before that), plays at 30% volume, fades out as
+  the hero leaves, and has a nav toggle to stop it; a mute is remembered.
 - Hero video asset is derived from the user's own `Timeline Video.mp4`.
 
 ## Brand Commitments
 
 - Name: Manas Kushwaha. Contact: manaskushwaha123@gmail.com.
 - The silhouette video is his own work and is the site's signature image.
-- Visual direction is pinned by the user: near-black ground, olive/lime accent, editorial
-  display type with an italic accent, data set in mono, a section-progress counter. Derived
-  from a manus-built prototype he approved.
+- Visual direction is pinned by the user (Nov 2026, replacing the earlier near-black/olive
+  build): light "lab paper" ground at exactly #f3f3f3 (the hero video's own background, so
+  the head sits edgeless with `darken`), soft rounded cards, two-tone Archivo headlines
+  (ink + grey), Azeret Mono labels, one signal-blue accent for the hero's annotation frame,
+  lime only as the contact grid's cursor light. References: Kodor/Monotime tall cards,
+  Sensorium grid-lined card, koi annotation diagram, glossy black pill CTA.
 - Voice: plain and technical. No agency language, no "crafting digital experiences".
 
 ## Evidence on Hand
@@ -80,10 +84,19 @@ Real and usable:
 - Codeforces `memyself` — Pupil, 1258 current / 1267 max, 508 solved, 18 rated contests.
 - Asset: `Timeline Video.mp4`, a double-exposure silhouette, 12.36s.
 
+- `manas987/Resort-Booking` — internship trial: direct booking for a 76-key resort (64 rooms,
+  12 villas), oversell-proof under concurrency, Gemini enquiry routing; 28 tables, 30 guest +
+  55 staff endpoints. Payments and messaging mocked; no public deployment.
+- `manas987/RetroMobi` — scooter rental marketplace: web app plus rider and shop Expo apps on
+  one backend. Mobile apps checked and run on an Android emulator only; no real-device or
+  native payment test, no store release.
+- Re-verified Nov 2026 from the repos: Bella (README "Jarlvis") now ships macOS tools and
+  model-summarised conversation memory, on Llama 3.2 3B; the SMTP repo now contains the real
+  engine (MX, STARTTLS, DKIM, MIME, BullMQ retries, SPF/DKIM/DMARC checks).
+
 Must not be fabricated or overstated: the exchange is an engineering build and a simulation of
-exchange infrastructure, never "production". Bella's memory, tools and desktop control are
-planned, not shipped. The SMTP repository is a Turborepo starter; the completed SMTP engine is
-a personal claim, not verifiable from the repo. No benchmarks exist for the exchange's latency.
+exchange infrastructure, never "production". Bella's multi-step reasoning is planned, not
+shipped. No benchmarks exist for the exchange's latency.
 No testimonials, no employers beyond Ascendlink, no open-source adoption numbers.
 
 Deliberately undecided: the music track (user will supply), the final hero headline.
@@ -104,5 +117,5 @@ Deliberately undecided: the music track (user will supply), the final hero headl
 ## Accessibility & Inclusion
 
 `prefers-reduced-motion` must disable the scroll choreography and pins rather than merely
-shortening them. Audio never starts without a user gesture. All contrast holds against the
+shortening them. Audio starts only after a user gesture, and the nav toggle stops it. All contrast holds against the
 near-black ground at the 4.5:1 floor for body text.

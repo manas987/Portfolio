@@ -25,6 +25,9 @@ Unresolved: music track (user supplying), final hero headline wording.
 
 ## Direction contract
 
+> Superseded Nov 2026 by the light "lab paper" direction recorded in PRODUCT.md (Brand
+> Commitments). The contract below describes the previous dark build and is kept for history.
+
 THESIS: A record of systems, not a presentation of a person. The page refuses the student-
 portfolio arrangement — avatar, skills grid, same-size project cards — and instead reads as an
 instrument panel for a body of work: the artifact floating in the dark at the top, then the

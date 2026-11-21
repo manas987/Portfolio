@@ -5,9 +5,9 @@ import { ArrowUp, Close, Message } from "../lib/icons";
 type Turn = { role: "user" | "model"; text: string };
 
 const SUGGESTIONS = [
-  "What was hardest about the exchange?",
-  "Does he know Kafka?",
-  "What should I ask him in an interview?",
+  "How does the exchange recover from a crash?",
+  "What did he work on at Ascendlink?",
+  "What has he built on mobile and with AI?",
 ];
 
 export function Chat() {
@@ -155,7 +155,7 @@ export function Chat() {
           {turns.length === 0 ? (
             <div className="chat-empty">
               <p className="body-copy">
-                Ask about the projects, the stack, or what Manas actually did.
+                Ask about the projects, their architecture, or the stack.
                 Answers come from his own notes.
               </p>
               <div className="chat-suggestions">

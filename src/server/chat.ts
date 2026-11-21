@@ -40,12 +40,12 @@ RULES
 - If asked something unrelated to Manas or his work, say that is outside what you cover, briefly.
 
 # Manas Kushwaha
-Based in Noida, India. Backend-oriented: distributed systems, real-time infrastructure, local AI.
+Based in Noida, India. Full-stack engineer across web, mobile and applied AI: distributed systems, real-time infrastructure, React and Expo apps, local AI pipelines.
 ${about.body.join("\n")}
 Contact: ${process.env.BUN_PUBLIC_EMAIL || "see the contact section"}.
 
 # Experience
-${experience.company} — ${experience.role}, ${experience.period}, ${experience.mode}.
+${experience.company} — ${experience.role}, ${experience.mode}.
 ${experience.intro}
 ${experience.wins
   .map(

@@ -1,6 +1,8 @@
+import type { CSSProperties } from "react";
 import { projects } from "../content";
 import { ArrowLeft, ArrowUpRight } from "../lib/icons";
 import { onLinkClick } from "../lib/router";
+import { CardArt, ProjectCard } from "./Sections";
 
 export function ProjectPage({ slug }: { slug: string }) {
   const index = projects.findIndex((p) => p.slug === slug);
@@ -12,7 +14,7 @@ export function ProjectPage({ slug }: { slug: string }) {
         <a className="back-link mono" href="/" onClick={onLinkClick("/")}>
           <ArrowLeft /> Index
         </a>
-        <h1 className="display project-title">Not here.</h1>
+        <h1 className="headline">Not here.</h1>
         <p className="body-copy">
           That project does not exist. The work is on the{" "}
           <a href="/" onClick={onLinkClick("/")}>
@@ -33,12 +35,31 @@ export function ProjectPage({ slug }: { slug: string }) {
         <ArrowLeft /> Index
       </a>
 
-      <h1 className="display project-title">{project.title}</h1>
-      <p className="project-problem">{project.problem}</p>
+      {/* Shares its view-transition-name with the card on the index, so the card floats up
+          and settles into this. */}
+      <header
+        className="card detail-hero"
+        style={{ viewTransitionName: `card-${project.slug}` } as CSSProperties}>
+        <div className="detail-hero-text">
+          <span className="mono card-tag">
+            {project.kind} · {project.year}
+          </span>
+          <h1 className="headline">{project.title}</h1>
+          <p className="detail-tagline">{project.tagline}</p>
+        </div>
+        <span className="card-art">
+          <CardArt project={project} />
+        </span>
+      </header>
 
       <div className="project-meta">
-        <span className="mono">{project.year}</span>
-        <span className="mono">{project.stack.join(" · ")}</span>
+        <ul className="stack-list">
+          {project.stack.map((tech) => (
+            <li key={tech} className="mono">
+              {tech}
+            </li>
+          ))}
+        </ul>
         {project.repo && (
           <a className="out-link" href={project.repo} target="_blank" rel="noreferrer">
             Repository <ArrowUpRight size={13} />
@@ -53,6 +74,7 @@ export function ProjectPage({ slug }: { slug: string }) {
 
       <div className="project-body">
         <div>
+          <p className="headline headline-sm project-problem reveal">{project.problem}</p>
           {project.body.map((para) => (
             <p key={para} className="body-copy reveal">
               {para}
@@ -60,21 +82,18 @@ export function ProjectPage({ slug }: { slug: string }) {
           ))}
           {project.notShipped && (
             <p className="caveat reveal">
-              <strong style={{ fontWeight: 500, color: "var(--paper)" }}>
-                Not shipped.
-              </strong>{" "}
-              {project.notShipped}
+              <strong>Status.</strong> {project.notShipped}
             </p>
           )}
         </div>
 
         <div>
           {project.flow && (
-            <>
-              <p className="mono reveal">Path through the system</p>
+            <div className="card flow-card reveal">
+              <p className="mono">Architecture</p>
               <div className="flow">
                 {project.flow.map((step) => (
-                  <div className="flow-step reveal" key={step.stage}>
+                  <div className="flow-step" key={step.stage}>
                     <div className="flow-marker">
                       <span className="flow-dot" />
                       <span className="flow-line" />
@@ -86,7 +105,7 @@ export function ProjectPage({ slug }: { slug: string }) {
                   </div>
                 ))}
               </div>
-            </>
+            </div>
           )}
 
           {project.facts && (
@@ -102,19 +121,10 @@ export function ProjectPage({ slug }: { slug: string }) {
         </div>
       </div>
 
-      <a
-        className="project-next"
-        href={`/work/${next.slug}`}
-        onClick={onLinkClick(`/work/${next.slug}`)}
-      >
-        <div>
-          <p className="mono" style={{ marginBottom: "0.6rem" }}>
-            Next
-          </p>
-          <p className="project-next-title">{next.title}</p>
-        </div>
-        <ArrowUpRight size={18} />
-      </a>
+      <div className="project-next">
+        <p className="mono">Next</p>
+        <ProjectCard key={next.slug} project={next} />
+      </div>
     </main>
   );
 }
