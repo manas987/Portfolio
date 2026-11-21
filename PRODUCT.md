@@ -50,7 +50,7 @@ phone.
 - Everything optional is env-driven: contact links, availability line, competitive-programming
   line, chat agent, music player. An unset link variable hides its row.
 - Background music is on by default (user decision, Nov 2026): it starts on the visitor's first
-  click, tap or key press (browsers block sound before that), plays at 30% volume, fades out as
+  click, tap or key press (browsers block sound before that), plays from a track mastered 26 dB down (original kept as track-original.mp3), fades out as
   the hero leaves, and has a nav toggle to stop it; a mute is remembered.
 - Hero video asset is derived from the user's own `Timeline Video.mp4`.
 

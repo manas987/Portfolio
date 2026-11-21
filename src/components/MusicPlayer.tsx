@@ -11,7 +11,9 @@ import { onHeroProgress } from "../lib/motion";
  * down and pauses it at the boundary; scrolling back resumes it. The toggle is the required
  * way to stop background audio, and a mute is remembered for the next visit.
  */
-const MAX_VOLUME = 0.3;
+// The track itself is mastered 26 dB down (public/audio/track.mp3; original kept as
+// track-original.mp3), so the level holds even if an extension ignores element volume.
+const MAX_VOLUME = 1;
 const MUTE_KEY = "music-muted";
 
 const readMuted = () => {

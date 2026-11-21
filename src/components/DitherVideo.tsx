@@ -12,13 +12,20 @@ void main() {
    colour, so the video has no visible frame at all. The luminance remap pushes the video's
    near-white ground to pure paper and its shadows to solid ink. */
 const FRAGMENT = `
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
 precision mediump float;
+#endif
 varying vec2 uv;
 uniform sampler2D video;
 uniform vec2 resolution;
 uniform float cell;
 uniform vec3 ink;
 uniform vec3 paper;
+uniform vec2 pointer; // canvas pixels, GL orientation (y up)
+uniform float hole;   // radius cleared around the pointer, 0 when away
+uniform float reach;  // radius the displaced dots are squeezed into
 
 float bayer2(vec2 a) {
   a = floor(a);
@@ -29,7 +36,24 @@ float bayer8(vec2 a) { return bayer4(0.5 * a) * 0.25 + bayer2(a); }
 
 void main() {
   vec2 cellCoord = floor(gl_FragCoord.xy / cell);
-  vec2 sampleUv = (cellCoord + 0.5) * cell / resolution;
+  vec2 cellPos = (cellCoord + 0.5) * cell;
+  vec2 samplePos = cellPos;
+  float cleared = 0.0;
+  // Dots run from the pointer: everything within reach is pushed outward, leaving a hole and
+  // squeezing what was there into a dense ring. Done as an inverse map (where did the dot that
+  // lands here come from?).
+  if (hole > 0.5) {
+    vec2 away = cellPos - pointer;
+    float d = length(away);
+    float h = hole;
+    if (d < h) {
+      cleared = 1.0;
+    } else if (d < reach) {
+      float t = (d - h) / (reach - h);
+      samplePos = pointer + away / d * (reach * pow(t, 1.15));
+    }
+  }
+  vec2 sampleUv = samplePos / resolution;
   vec3 color = texture2D(video, vec2(sampleUv.x, 1.0 - sampleUv.y)).rgb;
   float lum = dot(color, vec3(0.299, 0.587, 0.114));
   lum = smoothstep(0.02, 0.9, pow(lum, 0.62));
@@ -38,6 +62,7 @@ void main() {
   vec2 frame = (cellCoord + 0.5) * cell / resolution;
   float edge = smoothstep(0.0, 0.34, frame.y) * smoothstep(0.0, 0.1, frame.x) * smoothstep(1.0, 0.9, frame.x);
   lum = mix(1.0, lum, edge);
+  lum = max(lum, cleared);
   float on = step(bayer8(cellCoord) + 0.0078, lum);
   gl_FragColor = vec4(mix(ink, paper, on), 1.0);
 }`;
@@ -97,9 +122,13 @@ export function DitherVideo({ cell = 2 }: { cell?: number }) {
     gl.uniform3fv(gl.getUniformLocation(program, "paper"), hex(styles.getPropertyValue("--paper").trim() || "#f3f3f3"));
     const resolution = gl.getUniformLocation(program, "resolution");
     const cellSize = gl.getUniformLocation(program, "cell");
+    const pointerU = gl.getUniformLocation(program, "pointer");
+    const holeU = gl.getUniformLocation(program, "hole");
+    const reachU = gl.getUniformLocation(program, "reach");
+    let dpr = 1;
 
     const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.round(canvas.clientWidth * dpr);
       canvas.height = Math.round(canvas.clientHeight * dpr);
       gl.viewport(0, 0, canvas.width, canvas.height);
@@ -110,10 +139,46 @@ export function DitherVideo({ cell = 2 }: { cell?: number }) {
     const observer = new ResizeObserver(resize);
     observer.observe(canvas);
 
+    // Pointer repulsion, eased so the hole opens, follows and closes smoothly (CSS pixels).
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const HOLE = 34;
+    const REACH = 120;
+    let px = 0;
+    let py = 0;
+    let tx = 0;
+    let ty = 0;
+    let holeNow = 0;
+    let holeTarget = 0;
+    const onPointer = (e: PointerEvent) => {
+      const r = canvas.getBoundingClientRect();
+      tx = e.clientX - r.left;
+      ty = e.clientY - r.top;
+      const inside = tx > -REACH && ty > -REACH && tx < r.width + REACH && ty < r.height + REACH;
+      if (inside && holeTarget === 0) {
+        // Arriving: start the hole where the pointer is rather than gliding in from afar.
+        px = tx;
+        py = ty;
+      }
+      holeTarget = inside ? HOLE : 0;
+    };
+    const onLeave = () => {
+      holeTarget = 0;
+    };
+    if (!reduced) {
+      window.addEventListener("pointermove", onPointer, { passive: true });
+      document.documentElement.addEventListener("pointerleave", onLeave);
+    }
+
     let frame = 0;
     let visible = true;
     const draw = () => {
+      px += (tx - px) * 0.18;
+      py += (ty - py) * 0.18;
+      holeNow += (holeTarget - holeNow) * 0.12;
       if (video.readyState >= 2) {
+        gl.uniform2f(pointerU, px * dpr, canvas.height - py * dpr);
+        gl.uniform1f(holeU, holeNow * dpr);
+        gl.uniform1f(reachU, REACH * dpr);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, video);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
       }
@@ -131,6 +196,8 @@ export function DitherVideo({ cell = 2 }: { cell?: number }) {
       cancelAnimationFrame(frame);
       observer.disconnect();
       visibility.disconnect();
+      window.removeEventListener("pointermove", onPointer);
+      document.documentElement.removeEventListener("pointerleave", onLeave);
     };
   }, [cell]);
 
