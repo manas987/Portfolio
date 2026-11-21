@@ -424,7 +424,8 @@ figure {
   display: flex;
   gap: clamp(0.9rem, 1.6vw, 1.4rem);
   overflow-x: auto;
-  scroll-snap-type: x mandatory;
+  /* Proximity, not mandatory: mandatory snapping fights wheel and drag scrolling. */
+  scroll-snap-type: x proximity;
   scroll-padding-inline: var(--gutter);
   margin-inline: calc(-1 * var(--gutter));
   padding: 0.75rem var(--gutter) 2.5rem;
@@ -532,6 +533,54 @@ figure {
 
 .project-card:active {
   translate: 0 -1px;
+}
+
+.card-rail.is-dragging {
+  scroll-snap-type: none;
+  cursor: grabbing;
+  user-select: none;
+}
+
+.card-rail.is-dragging .project-card {
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card-rail {
+    cursor: grab;
+  }
+}
+
+.rail-foot {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.rail-foot .rail-progress {
+  flex: 1;
+}
+
+.rail-arrows {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.rail-arrow {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: var(--ink);
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out);
+}
+
+.rail-arrow:active {
+  transform: scale(0.94);
 }
 
 .rail-progress {
@@ -1163,6 +1212,98 @@ figure {
   align-items: center;
   gap: 1rem;
   padding-block: clamp(5rem, 10vw, 8rem);
+}
+
+/* ---------- Accessibility ---------- */
+
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transform: translateY(-160%);
+  transition: transform 200ms var(--ease-out);
+}
+
+.skip-link:focus-visible {
+  transform: none;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The cards and glass buttons need a focus ring that follows their rounded shape. */
+.project-card:focus-visible,
+.glass:focus-visible,
+.pill:focus-visible,
+.live-pill:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 4px;
+}
+
+/* ---------- Live app button + copy email ---------- */
+
+.live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1.25rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: none;
+  transition: transform 160ms var(--ease-out);
+}
+
+.live-pill:active {
+  transform: scale(0.97);
+}
+
+.biz-email {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.biz-email a {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.copy-email {
+  flex: none;
+  padding: 0.15rem 0.55rem;
+  border: 1px solid var(--hair);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  cursor: pointer;
+  transition: color 160ms ease, border-color 160ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .copy-email:hover {
+    color: var(--ink);
+    border-color: var(--ink);
+  }
 }
 
 /* ---------- Card → page transition ---------- */

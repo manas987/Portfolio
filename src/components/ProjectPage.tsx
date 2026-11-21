@@ -10,7 +10,7 @@ export function ProjectPage({ slug }: { slug: string }) {
 
   if (!project) {
     return (
-      <main className="shell project-page">
+      <main className="shell project-page" id="main">
         <a className="back-link mono" href="/" onClick={onLinkClick("/")}>
           <ArrowLeft /> Index
         </a>
@@ -30,7 +30,7 @@ export function ProjectPage({ slug }: { slug: string }) {
   const next = projects[(index + 1) % projects.length]!;
 
   return (
-    <main className="shell project-page" data-reveal-group>
+    <main className="shell project-page" id="main" data-reveal-group>
       <a className="back-link mono" href="/" onClick={onLinkClick("/")}>
         <ArrowLeft /> Index
       </a>
@@ -46,6 +46,11 @@ export function ProjectPage({ slug }: { slug: string }) {
           </span>
           <h1 className="headline">{project.title}</h1>
           <p className="detail-tagline">{project.tagline}</p>
+          {project.live && (
+            <a className="live-pill glass" href={project.live} target="_blank" rel="noreferrer">
+              Open live app <ArrowUpRight size={14} />
+            </a>
+          )}
         </div>
         <span className="card-art">
           <CardArt project={project} />

@@ -1,6 +1,8 @@
 import { about, cp, experience, projects } from "../content";
 
-const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+// Used when the main model is overloaded or rate-limited, so a visitor still gets an answer.
+const FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL || "gemini-3.5-flash-lite";
 const ENDPOINT = (model: string) =>
   `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse`;
 
@@ -30,14 +32,24 @@ function buildSystemPrompt() {
 
 Answer only from the notes below. They are the complete record you have.
 
-RULES
-- Never invent a project, a number, a company, a date, a technology or a claim. If the notes do not cover it, say you do not know and suggest emailing him.
+FACTS
+- Never invent a project, a number, a company, a date, a technology or a claim. If the notes do not cover something, say so plainly and suggest asking him directly or emailing him.
+- Anything marked NOT SHIPPED is not built. Say so if asked, without apologising for it.
 - Never describe the exchange as production or production-ready. It is an engineering build with no benchmarks.
-- Bella's memory, tool use and desktop control are planned, not built. Say so if asked.
-- He is early career. Do not inflate him into a senior engineer, but do not call him a student either — he presents as a working engineer.
-- Write plainly, 2-4 sentences, no bullet lists, no markdown, no emoji. Match a technical peer, not a brochure.
-- You may point to a project page path like /work/bella when it is useful.
-- If asked something unrelated to Manas or his work, say that is outside what you cover, briefly.
+- He is early career. Do not inflate him into a senior engineer, and do not call him a student; he presents as a working engineer.
+
+VOICE
+- Talk like a sharp engineer who knows his work well: direct, specific, a little dry. Not a brochure, not a press release, not a customer-service bot.
+- One short paragraph, 2-4 sentences, never more. No bullet lists, no markdown, no emoji.
+- Never repeat or paraphrase an answer you already gave in this conversation. If the visitor pushes back, they want something new: go one level deeper, or answer the actual objection.
+- You may point to a project page path like /work/bella when it helps.
+- If asked something unrelated to Manas or his work, say in one line that you only cover his work.
+
+PUSHBACK AND SKEPTICISM
+Skeptical visitors are often the most serious ones; treat a challenge as a real question.
+- "That's easy / what's impressive?": answer the objection with what the notes actually say, and why it matters (a 5.6s to 200ms dashboard query is 28x faster on a screen people wait on). Never state HOW he achieved a result unless the notes say so: the Ascendlink notes do not record the techniques, so say that plainly and suggest asking him in an interview. Ascendlink's code is private; only point to public repos and project pages. Conceding that something is ordinary is fine; honesty convinces more than defending everything.
+- Insults, or "is he stupid?": stay composed and a little dry, never defensive, never a canned refusal. Say you can't vouch for anyone's IQ, but you can show the work, then name one or two concrete, checkable things (for example the exchange's snapshot-and-replay recovery, or the resort engine that can't sell the last room twice) and where to see them.
+- Never argue, lecture the visitor, or sulk. Never flatter him with adjectives; let the work make the case.
 
 # Manas Kushwaha
 Based in Noida, India. Full-stack engineer across web, mobile and applied AI: distributed systems, real-time infrastructure, React and Expo apps, local AI pipelines.
@@ -117,15 +129,22 @@ export async function handleChat(request: Request): Promise<Response> {
     return new Response("Bad request", { status: 400 });
   }
 
-  const upstream = await fetch(ENDPOINT(MODEL), {
-    method: "POST",
-    headers: { "content-type": "application/json", "x-goog-api-key": key },
-    body: JSON.stringify({
-      system_instruction: { parts: [{ text: buildSystemPrompt() }] },
-      contents: turns.map((t) => ({ role: t.role, parts: [{ text: t.text }] })),
-      generationConfig: { temperature: 0.4, maxOutputTokens: 500 },
-    }),
+  const body = JSON.stringify({
+    system_instruction: { parts: [{ text: buildSystemPrompt() }] },
+    contents: turns.map((t) => ({ role: t.role, parts: [{ text: t.text }] })),
+    generationConfig: { temperature: 0.5, maxOutputTokens: 500 },
   });
+  const ask = (model: string) =>
+    fetch(ENDPOINT(model), {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-goog-api-key": key },
+      body,
+    });
+  let upstream = await ask(MODEL);
+  if ((upstream.status === 503 || upstream.status === 429) && FALLBACK_MODEL !== MODEL) {
+    console.error("gemini", upstream.status, "on", MODEL, "- falling back to", FALLBACK_MODEL);
+    upstream = await ask(FALLBACK_MODEL);
+  }
 
   if (!upstream.ok || !upstream.body) {
     const detail = await upstream.text().catch(() => "");

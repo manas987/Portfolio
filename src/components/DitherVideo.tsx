@@ -226,6 +226,7 @@ export function DitherVideo({ cell = 2 }: { cell?: number }) {
       <video
         ref={videoRef}
         className="hero-video"
+        aria-hidden
         poster="/hero-poster.jpg"
         autoPlay
         muted

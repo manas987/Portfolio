@@ -1,7 +1,7 @@
-import { useEffect, useRef, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { config } from "../config";
 import { about, callouts, cp, experience, projects, skills, type Project } from "../content";
-import { ArrowUp, ArrowUpRight, Mark } from "../lib/icons";
+import { ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, Mark } from "../lib/icons";
 import { prefersReducedMotion } from "../lib/motion";
 import { onLinkClick, whenSettled } from "../lib/router";
 import { DitherVideo } from "./DitherVideo";
@@ -106,8 +106,95 @@ export function ProjectCard({ project }: { project: Project }) {
   );
 }
 
+/**
+ * Makes the horizontal rail usable with a mouse, not just a trackpad: the vertical wheel
+ * scrolls it (handing back to the page at either end so scrolling never gets stuck), the
+ * mouse can drag it, and a drag never doubles as a click. Touch keeps native scrolling.
+ */
+function useRailControls() {
+  const railRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const rail = railRef.current;
+    if (!rail) return;
+
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return; // already horizontal (trackpad)
+      const max = rail.scrollWidth - rail.clientWidth;
+      const atStart = rail.scrollLeft <= 0 && e.deltaY < 0;
+      const atEnd = rail.scrollLeft >= max - 1 && e.deltaY > 0;
+      if (atStart || atEnd) return; // let the page scroll on
+      e.preventDefault();
+      rail.scrollLeft += e.deltaY;
+    };
+
+    let startX = 0;
+    let startScroll = 0;
+    let dragging = false;
+    let moved = false;
+    const onDown = (e: PointerEvent) => {
+      if (e.pointerType !== "mouse" || e.button !== 0) return;
+      dragging = true;
+      moved = false;
+      startX = e.clientX;
+      startScroll = rail.scrollLeft;
+    };
+    const onMove = (e: PointerEvent) => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      if (!moved && Math.abs(dx) > 5) {
+        moved = true;
+        rail.classList.add("is-dragging");
+        rail.setPointerCapture(e.pointerId);
+      }
+      if (moved) rail.scrollLeft = startScroll - dx;
+    };
+    const onUp = () => {
+      dragging = false;
+      rail.classList.remove("is-dragging");
+    };
+    // A drag ends with a click on whatever card is under the pointer; swallow it.
+    const onClick = (e: MouseEvent) => {
+      if (moved) {
+        e.preventDefault();
+        e.stopPropagation();
+        moved = false;
+      }
+    };
+
+    rail.addEventListener("wheel", onWheel, { passive: false });
+    rail.addEventListener("pointerdown", onDown);
+    rail.addEventListener("pointermove", onMove);
+    rail.addEventListener("pointerup", onUp);
+    rail.addEventListener("pointercancel", onUp);
+    rail.addEventListener("click", onClick, true);
+    return () => {
+      rail.removeEventListener("wheel", onWheel);
+      rail.removeEventListener("pointerdown", onDown);
+      rail.removeEventListener("pointermove", onMove);
+      rail.removeEventListener("pointerup", onUp);
+      rail.removeEventListener("pointercancel", onUp);
+      rail.removeEventListener("click", onClick, true);
+    };
+  }, []);
+
+  const step = (direction: 1 | -1) => {
+    const rail = railRef.current;
+    const card = rail?.querySelector<HTMLElement>(".project-card");
+    if (!rail || !card) return;
+    const gap = parseFloat(getComputedStyle(rail).columnGap) || 0;
+    rail.scrollBy({
+      left: direction * (card.offsetWidth + gap),
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+    });
+  };
+
+  return { railRef, step };
+}
+
 export function Work() {
   const fill = useRef<HTMLSpanElement>(null);
+  const { railRef, step } = useRailControls();
   return (
     <section className="section" id="work" data-reveal-group>
       <div className="section-head reveal">
@@ -119,6 +206,9 @@ export function Work() {
 
       <div
         className="card-rail"
+        ref={railRef}
+        role="region"
+        aria-label="Projects"
         onScroll={(e) => {
           const el = e.currentTarget;
           const max = el.scrollWidth - el.clientWidth;
@@ -128,8 +218,18 @@ export function Work() {
           <ProjectCard key={project.slug} project={project} />
         ))}
       </div>
-      <div className="rail-progress" aria-hidden>
-        <span ref={fill} />
+      <div className="rail-foot">
+        <div className="rail-progress" aria-hidden>
+          <span ref={fill} />
+        </div>
+        <div className="rail-arrows">
+          <button type="button" className="rail-arrow glass" onClick={() => step(-1)} aria-label="Previous projects">
+            <ArrowLeft size={15} />
+          </button>
+          <button type="button" className="rail-arrow glass" onClick={() => step(1)} aria-label="Next projects">
+            <ArrowRight size={15} />
+          </button>
+        </div>
       </div>
     </section>
   );
@@ -452,6 +552,14 @@ export function About() {
 const linkCode: Record<string, string> = { GitHub: "G", LinkedIn: "L", X: "X", Codeforces: "C" };
 
 export function Contact() {
+  const [copied, setCopied] = useState(false);
+  // Many visitors have no mail app set up, so mailto links do nothing for them; copying works.
+  const copyEmail = () => {
+    void navigator.clipboard?.writeText(config.email).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    });
+  };
   const glass = useLiquidGlow([0.72, 0.38]);
   return (
     <section className="section contact" id="contact" data-reveal-group>
@@ -477,7 +585,15 @@ export function Contact() {
               {config.email && (
                 <p>
                   <span className="mono">E:</span>
-                  <a href={`mailto:${config.email}`}>{config.email}</a>
+                  <span className="biz-email">
+                    <a href={`mailto:${config.email}`}>{config.email}</a>
+                    <button type="button" className="copy-email" onClick={copyEmail}>
+                      {copied ? "Copied" : "Copy"}
+                    </button>
+                    <span className="sr-only" aria-live="polite">
+                      {copied ? "Email address copied" : ""}
+                    </span>
+                  </span>
                 </p>
               )}
               {config.links.map((link) => (

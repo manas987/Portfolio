@@ -31,6 +31,12 @@ export const ArrowLeft = ({ size = 14, className }: IconProps) => (
   </svg>
 );
 
+export const ArrowRight = ({ size = 14, className }: IconProps) => (
+  <svg {...base(size)} className={className}>
+    <path d="M4 8h8M8.5 4.5 12 8l-3.5 3.5" />
+  </svg>
+);
+
 export const ArrowUp = ({ size = 14, className }: IconProps) => (
   <svg {...base(size)} className={className}>
     <path d="M8 12.5v-9M4.5 7 8 3.5 11.5 7" />
