@@ -40,6 +40,7 @@ uniform float cell;
 uniform float dpr;
 uniform int cols;
 uniform float develop; // 0..1 first-load reveal: each dot appears once this passes its seed
+uniform float maxStretch; // 1 disables the speed streaks (reduced motion)
 out vec2 vVel;
 out float vStretch;
 
@@ -76,7 +77,7 @@ void main() {
   }
   vec4 o = texelFetch(offsets, ivec2(ix, iy), 0);
   float speed = length(o.zw) / dpr;
-  float stretch = speed < 0.3 ? 1.0 : min(2.6, 1.0 + speed * 0.12);
+  float stretch = speed < 0.3 ? 1.0 : min(maxStretch, 1.0 + speed * 0.12);
   vVel = o.zw;
   vStretch = stretch;
   gl_PointSize = cell * stretch;
@@ -175,6 +176,7 @@ export function DitherVideo({ cell = 2 }: { cell?: number }) {
     const dprU = gl.getUniformLocation(program, "dpr");
     const colsU = gl.getUniformLocation(program, "cols");
     const developU = gl.getUniformLocation(program, "develop");
+    const maxStretchU = gl.getUniformLocation(program, "maxStretch");
 
     // Grid state, rebuilt on resize. Offsets are device pixels, GL orientation (y up).
     let dpr = 1;
@@ -218,15 +220,17 @@ export function DitherVideo({ cell = 2 }: { cell?: number }) {
     const onLeave = () => {
       hand = null;
     };
-    if (!reduced) {
-      window.addEventListener("pointermove", onPointer, { passive: true });
-      document.documentElement.addEventListener("pointerleave", onLeave);
-    }
+    // The push runs for everyone: it only moves while the visitor moves the pointer and
+    // settles in a moment. Reduced motion gets a calmer version (half force, no streaks);
+    // the develop reveal, which plays on its own, stays off for them.
+    window.addEventListener("pointermove", onPointer, { passive: true });
+    document.documentElement.addEventListener("pointerleave", onLeave);
+    gl.uniform1f(maxStretchU, reduced ? 1 : 2.6);
 
     /* One step of the springs over the live region. Returns the rows that changed. */
     const step = (dt: number): [number, number] | null => {
       const R = REACH * dpr;
-      const S = (FORCE / 100) * 11 * dpr;
+      const S = (FORCE / 100) * 11 * dpr * (reduced ? 0.5 : 1);
       if (hand) {
         const c0 = Math.max(0, Math.floor((hand.x - R) / cellPx) - 1);
         const r0 = Math.max(0, Math.floor((hand.y - R) / cellPx) - 1);
@@ -297,7 +301,7 @@ export function DitherVideo({ cell = 2 }: { cell?: number }) {
         }
         gl.uniform1f(developU, develop);
 
-        const changed = reduced ? null : step(dt);
+        const changed = step(dt);
         if (changed) {
           const [r0, r1] = changed;
           gl.activeTexture(gl.TEXTURE1);
