@@ -107,9 +107,9 @@ export function ProjectCard({ project }: { project: Project }) {
 }
 
 /**
- * Makes the horizontal rail usable with a mouse, not just a trackpad: the vertical wheel
- * scrolls it (handing back to the page at either end so scrolling never gets stuck), the
- * mouse can drag it, and a drag never doubles as a click. Touch keeps native scrolling.
+ * Makes the horizontal rail usable with a mouse, not just a trackpad: the mouse can drag it,
+ * the arrows step it, and a drag never doubles as a click. The vertical wheel is left alone
+ * so the page always scrolls past the rail. Touch and trackpads keep native scrolling.
  */
 function useRailControls() {
   const railRef = useRef<HTMLDivElement>(null);
@@ -117,16 +117,6 @@ function useRailControls() {
   useEffect(() => {
     const rail = railRef.current;
     if (!rail) return;
-
-    const onWheel = (e: WheelEvent) => {
-      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return; // already horizontal (trackpad)
-      const max = rail.scrollWidth - rail.clientWidth;
-      const atStart = rail.scrollLeft <= 0 && e.deltaY < 0;
-      const atEnd = rail.scrollLeft >= max - 1 && e.deltaY > 0;
-      if (atStart || atEnd) return; // let the page scroll on
-      e.preventDefault();
-      rail.scrollLeft += e.deltaY;
-    };
 
     let startX = 0;
     let startScroll = 0;
@@ -162,14 +152,12 @@ function useRailControls() {
       }
     };
 
-    rail.addEventListener("wheel", onWheel, { passive: false });
     rail.addEventListener("pointerdown", onDown);
     rail.addEventListener("pointermove", onMove);
     rail.addEventListener("pointerup", onUp);
     rail.addEventListener("pointercancel", onUp);
     rail.addEventListener("click", onClick, true);
     return () => {
-      rail.removeEventListener("wheel", onWheel);
       rail.removeEventListener("pointerdown", onDown);
       rail.removeEventListener("pointermove", onMove);
       rail.removeEventListener("pointerup", onUp);

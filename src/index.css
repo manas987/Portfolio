@@ -38,6 +38,15 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/* No visible page scrollbar (the page still scrolls by wheel, trackpad, keys and touch). */
+html {
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+
 body {
   margin: 0;
   background: var(--paper);
@@ -557,8 +566,19 @@ figure {
   gap: 1.25rem;
 }
 
-.rail-foot .rail-progress {
+.rail-progress {
   flex: 1;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--hair);
+  overflow: hidden;
+}
+
+.rail-progress span {
+  display: block;
+  height: 100%;
+  width: calc(18% + var(--p, 0) * 82%);
+  background: var(--ink);
 }
 
 .rail-arrows {
@@ -581,20 +601,6 @@ figure {
 
 .rail-arrow:active {
   transform: scale(0.94);
-}
-
-.rail-progress {
-  height: 2px;
-  border-radius: 2px;
-  background: var(--hair);
-  overflow: hidden;
-}
-
-.rail-progress span {
-  display: block;
-  height: 100%;
-  width: calc(18% + var(--p, 0) * 82%);
-  background: var(--ink);
 }
 
 /* ---------- Experience: stat card ---------- */
